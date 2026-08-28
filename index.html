@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alexandre Kaizeler — Computational Biologist / Data Scientist</title>
+<meta name="description" content="Computational biologist transitioning into data science. R &amp; Python pipelines, statistical modeling, and interactive tools for transcriptomics research.">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          bg: '#0a0e14',
+          surface: '#10151d',
+          surface2: '#161d28',
+          border: '#232b38',
+          adenine: '#4fd1c5',   // teal
+          thymine: '#f6ad55',   // amber
+          guanine: '#f687b3',   // pink
+          cytosine: '#63b3ed',  // blue
+          collab: '#b794f4',    // violet — 5th category colour (not a base, deliberately distinct)
+          ink: '#e6edf3',
+          muted: '#8b98a9',
+        },
+        fontFamily: {
+          sans: ['Inter', 'sans-serif'],
+          mono: ['JetBrains Mono', 'monospace'],
+        },
+      },
+    },
+  }
+</script>
+
+<style>
+  html { scroll-behavior: smooth; }
+  body { background-color: #0a0e14; }
+
+  .bp-grid {
+    background-image:
+      linear-gradient(rgba(79,209,197,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(79,209,197,0.06) 1px, transparent 1px);
+    background-size: 36px 36px;
+  }
+
+  /* ---- Laptop mockup housing the RNA hero animation ---- */
+  .laptop { width: 100%; max-width: 460px; margin: 0 auto; }
+  .laptop-screen {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    background: radial-gradient(120% 120% at 50% 0%, #121a24 0%, #0a0e14 70%);
+    border: 10px solid #1b232f;
+    border-bottom-width: 4px;
+    border-radius: 14px 14px 4px 4px;
+    overflow: hidden;
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.55), 0 20px 50px -20px rgba(0,0,0,0.7);
+  }
+  .laptop-cam {
+    position: absolute; top: 4px; left: 50%; transform: translateX(-50%);
+    width: 5px; height: 5px; border-radius: 999px; background: #2a3444; z-index: 5;
+  }
+  .laptop-base {
+    position: relative;
+    height: 14px;
+    background: linear-gradient(180deg, #232b38, #171d27);
+    border-radius: 0 0 3px 3px;
+  }
+  .laptop-base::after {
+    content: '';
+    position: absolute; left: -7%; right: -7%; bottom: 0; height: 9px;
+    background: linear-gradient(180deg, #1e2530, #12161d);
+    clip-path: polygon(3% 0, 97% 0, 100% 100%, 0% 100%);
+    border-radius: 0 0 7px 7px;
+  }
+
+  .glow-text {
+    background: linear-gradient(90deg, #4fd1c5, #63b3ed 45%, #f687b3);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .card-hover { transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
+  .card-hover:hover { transform: translateY(-3px); border-color: rgba(79,209,197,0.5); box-shadow: 0 12px 28px -12px rgba(0,0,0,0.6); }
+
+  .nav-link { position: relative; }
+  .nav-link::after {
+    content: ''; position: absolute; left: 0; bottom: -4px; height: 1px; width: 0%;
+    background: #4fd1c5; transition: width .2s ease;
+  }
+  .nav-link:hover::after { width: 100%; }
+
+  ::selection { background: rgba(79,209,197,0.35); color: #e6edf3; }
+
+  .scanline {
+    background: repeating-linear-gradient(180deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 3px);
+  }
+
+  /* ---- Cat mascot (Beyond the Bench) ---- */
+  .cat-tail {
+    transform-box: fill-box;
+    transform-origin: 0% 100%;
+    animation: tailSwish 3.6s ease-in-out infinite;
+  }
+  @keyframes tailSwish {
+    0%, 100% { transform: rotate(-4deg); }
+    50%      { transform: rotate(7deg); }
+  }
+  .cat-eye {
+    /* transform-box is required here — without it, transform-origin: center resolves
+       against the whole SVG viewport (not this element), which is what made the
+       blink look "cursed": both eyes were scaling from the canvas centre, not their own. */
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: catBlink 6s ease-in-out infinite;
+  }
+  @keyframes catBlink {
+    0%, 95%, 100% { transform: scaleY(1); }
+    97.5%         { transform: scaleY(0.08); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cat-tail, .cat-eye { animation: none; }
+  }
+</style>
+</head>
+
+<body class="bg-bg text-ink font-sans antialiased">
+
+<!-- ============ NAV ============ -->
+<header class="fixed top-0 inset-x-0 z-50 border-b border-border/80 bg-bg/80 backdrop-blur-md">
+  <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+    <a href="#top" class="font-mono text-sm font-semibold tracking-tight text-ink">
+      <span class="text-adenine">&gt;</span> AKaizeler<span class="text-muted">.bio</span>
+    </a>
+    <nav class="hidden md:flex items-center gap-8 text-sm text-muted font-medium">
+      <a href="#projects" class="nav-link hover:text-ink">Projects</a>
+      <a href="#publications" class="nav-link hover:text-ink">Publications</a>
+      <a href="#tools" class="nav-link hover:text-ink">Scripts &amp; Tools</a>
+      <a href="#resume" class="nav-link hover:text-ink">Resume</a>
+      <a href="#personal" class="nav-link hover:text-ink">Beyond the Desk</a>
+      <a href="#contact" class="nav-link hover:text-ink">Contact</a>
+    </nav>
+    <div class="flex items-center gap-3">
+      <a href="https://github.com/A-Kaizeler-A" target="_blank" rel="noopener"
+         class="hidden sm:inline-flex items-center gap-2 text-sm text-muted hover:text-ink transition-colors">
+        GitHub
+      </a>
+      <a href="#resume"
+         class="inline-flex items-center gap-2 rounded-md border border-adenine/40 bg-adenine/10 px-3 py-1.5 text-sm font-medium text-adenine hover:bg-adenine/20 transition-colors">
+        View CV
+      </a>
+      <button id="menuBtn" class="md:hidden text-muted hover:text-ink" aria-label="Open menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+  </div>
+  <!-- mobile menu -->
+  <nav id="mobileMenu" class="hidden md:hidden border-t border-border bg-bg/95 px-6 py-4 flex flex-col gap-4 text-sm text-muted font-medium">
+    <a href="#projects" class="hover:text-ink">Projects</a>
+    <a href="#publications" class="hover:text-ink">Publications</a>
+    <a href="#tools" class="hover:text-ink">Scripts &amp; Tools</a>
+    <a href="#resume" class="hover:text-ink">Resume</a>
+    <a href="#personal" class="hover:text-ink">Beyond the Bench</a>
+    <a href="#contact" class="hover:text-ink">Contact</a>
+  </nav>
+</header>
+
+<!-- ============ HERO ============ -->
+<section id="top" class="relative overflow-hidden bp-grid pt-40 pb-28 md:pt-48 md:pb-36 border-b border-border">
+  <div class="pointer-events-none absolute inset-0 scanline opacity-40"></div>
+  <div class="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-adenine/10 blur-3xl"></div>
+
+  <div class="relative max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-14 items-center">
+
+    <!-- text column -->
+    <div>
+      <p class="font-mono text-xs uppercase tracking-[0.25em] text-adenine mb-5">Computational Biology and Data Science</p>
+      <h1 class="text-4xl sm:text-5xl font-extrabold leading-[1.1] tracking-tight">
+        Alexandre Kaizeler
+      </h1>
+      <p class="mt-2 text-xl sm:text-2xl font-semibold glow-text">
+        Translating transcriptomic complexity into biological insights.
+      </p>
+      <p class="mt-6 text-muted leading-relaxed max-w-lg">
+        PhD researcher in Biomedical Sciences building statistical pipelines, R Shiny applications,
+        and reproducible analysis frameworks for large-scale RNA-seq data. From a
+        900-subject / 49-tissue web tool published in <em>eLife</em>, to a meta-analysis of stress granules transcriptomes, to a web app of all things RBP related.
+      </p>
+
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href="#projects" class="rounded-md bg-adenine text-bg font-semibold text-sm px-5 py-2.5 hover:bg-adenine/90 transition-colors">
+          See my work
+        </a>
+        <a href="#contact" class="rounded-md border border-border text-ink text-sm font-medium px-5 py-2.5 hover:border-adenine/50 hover:text-adenine transition-colors">
+          Get in touch
+        </a>
+      </div>
+
+      <div class="mt-10 flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs text-muted">
+        <span><span class="text-adenine">R</span> — advanced</span>
+        <span><span class="text-cytosine">Python</span> — proficient</span>
+        <span><span class="text-guanine">Shiny</span> — familiar</span>
+        <span><span class="text-thymine">Git</span> — familiar</span>
+      </div>
+    </div>
+
+    <!-- Animated RNA strand inside a laptop mockup (decorative hero graphic, not a nav) -->
+    <div class="flex items-center justify-center" aria-hidden="true">
+      <div class="laptop">
+        <div class="laptop-screen">
+          <div class="laptop-cam"></div>
+          <svg viewBox="0 0 480 260" class="w-full h-full">
+            <g id="rnaGroup"></g>
+          </svg>
+        </div>
+        <div class="laptop-base"></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ PROJECTS (data-driven, filterable) ============ -->
+<section id="projects" class="max-w-6xl mx-auto px-6 py-24 border-b border-border">
+  <div class="mb-2">
+    <p class="font-mono text-xs uppercase tracking-[0.25em] text-cytosine mb-2">01 — Computational Projects</p>
+    <h2 class="text-3xl font-bold tracking-tight">Pipelines &amp; tools built for research</h2>
+  </div>
+  <p class="text-muted max-w-2xl mb-8">Here is a list of my projects and their descriptions.</p>
+
+  <!-- filter bar -->
+  <div id="filterBar" class="flex flex-wrap gap-2 mb-10 font-mono text-xs">
+    <button data-filter="all" class="filter-btn px-3 py-1.5 rounded-full border border-adenine/50 bg-adenine/10 text-adenine">All</button>
+    <button data-filter="tool" class="filter-btn px-3 py-1.5 rounded-full border border-border text-muted hover:text-ink">Published Tools</button>
+    <button data-filter="pipeline" class="filter-btn px-3 py-1.5 rounded-full border border-border text-muted hover:text-ink">Pipelines &amp; Analyses</button>
+    <button data-filter="package" class="filter-btn px-3 py-1.5 rounded-full border border-border text-muted hover:text-ink">Packages</button>
+    <button data-filter="case-study" class="filter-btn px-3 py-1.5 rounded-full border border-border text-muted hover:text-ink">Case Studies</button>
+    <button data-filter="collaboration" class="filter-btn px-3 py-1.5 rounded-full border border-border text-muted hover:text-ink">Collaborations</button>
+  </div>
+
+  <div id="projectGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+</section>
+
+<script>
+  // ---- Category → colour + label (drives filter chips + card badges) ----
+  const CATEGORIES = {
+    "tool":          { label: "Published Tool",     color: "adenine"  }, // teal
+    "pipeline":      { label: "Pipeline / Analysis", color: "cytosine" }, // blue
+    "package":       { label: "Open-Source Package", color: "guanine"  }, // pink
+    "case-study":    { label: "Case Study",          color: "thymine"  }, // amber
+    "collaboration": { label: "Collaboration",       color: "collab"   }, // violet
+  };
+
+  // ---- Project data (source of truth for the grid above) ----
+  const PROJECTS = [
+    {
+      title: "Spliceosome Induction is a Druggable Dependency of RAS-Driven Senescence and Cancer",
+      category: "collaboration",
+      featured: true,
+      meta: "Nature Communications, 2026",
+      description: "Multi-lab collaboration identifying spliceosome induction as a druggable vulnerability in RAS-driven cancer. Contributed part of the computational analysis layer (built on the CHARM platform's RBP similarity search and GSEA pipeline) that helped uncover RBM39's mechanism of splicing regulation.",
+      tags: ["Differential splicing analysis", "RNA-seq", "RNA Binding Maps", "eCLIP", "Druggable target discovery"],
+      links: [
+        { label: "Read the paper", href: "https://www.nature.com/articles/s41467-026-71564-z" },
+      ]
+    },
+    {
+      title: "voyAGEr",
+      category: "tool",
+      meta: "eLife, 2024 · first author",
+      description: "Public web application exploring age-related gene expression changes across 900+ individuals and 49 human tissues (GTEx). Built the statistical backend and interactive front-end so non-technical users can query and interpret results independently.",
+      tags: ["R Shiny", "RNA-seq", "Data visualisation", "GTEx"],
+      links: [
+        { label: "Open the app", href: "https://compbio.imm.medicina.ulisboa.pt/app/voyAGEr" },
+        { label: "Read the eLife paper", href: "https://elifesciences.org/articles/88623" },
+        { label: "View on GitHub", href: "https://github.com/DiseaseTranscriptomicsLab/voyAGEr" },
+      ]
+    },
+    {
+      title: "Stress Granule Transcriptomes",
+      category: "pipeline",
+      meta: "Meta-analysis",
+      description: "Reanalysed 16 independent public stress-granule transcriptomic datasets, including QC (FastQC/MultiQC), read depth and library complexity, and corrected a previously unrecognised length-based technical bias in one isolation method. Surfaced mitochondrial RNA enrichment in stress granules as a reproducible signal with a proposed role in immune signalling.",
+      tags: ["R", "Bulk RNA-seq QC", "limma/voom", "Meta-analysis", "Machine learning"],
+      links: [
+        { label: "View on GitHub", href: "https://github.com/DiseaseTranscriptomicsLab/StressGranules" },
+      ]
+    },
+    {
+      title: "CHARM",
+      category: "pipeline",
+      meta: "Web app",
+      description: "Comprehensive Hub for Alternative Regulatory Mapping: an R Shiny app exploring how RNA-binding proteins affect expression, splicing, and direct RNA binding. Engineered the data layer (precomputed similarity matrices, lazy-loading, qs serialisation) to keep multi-gigabyte objects responsive live.",
+      tags: ["R Shiny", "eCLIP", "GSEA", "Docker"],
+      links: [
+        { label: "Open the app", href: "https://diseasetranscriptomicslab.github.io/CHARM/" },
+        { label: "View on GitHub", href: "https://github.com/DiseaseTranscriptomicsLab/CHARM" },
+      ]
+    },
+    {
+      title: "Cell Competition — Fixing Contaminated RNA-seq with Mutations",
+      category: "case-study",
+      meta: "Mutations as fingerprints",
+      description: "FACS sorting of two co-cultured cancer cell lines left ~3% cross-contamination, which masqueraded as biology (Y-chromosome genes 'expressed' in an XX cell line was the tell). Instead of discarding the samples, I called somatic variants (GATK Mutect2) to find mutations unique to each cell line, then used them as read-level barcodes to tell genuine winner-cell signal apart from contaminating loser-cell reads.",
+      tags: ["Variant calling", "GATK Mutect2", "BWA", "RNA-seq", "Problem solving"],
+      links: []
+    },
+    {
+      title: "markeR",
+      category: "package",
+      meta: "Bioconductor",
+      description: "Modular R package for systematically evaluating gene sets as phenotypic markers from transcriptomic data. Built and tested package functionality and contributed documentation and code that passed Bioconductor's formal peer review.",
+      tags: ["R package", "Transcriptomic signature testing", "Bioconductor"],
+      links: [
+        { label: "Bioconductor page", href: "https://bioconductor.org/packages/release/bioc/html/markeR.html" },
+        { label: "Read the paper", href: "https://academic.oup.com/nargab/article/8/2/lqag057/8703711" },
+      ]
+    },
+    {
+      title: "T-ALL Analysis",
+      category: "collaboration",
+      meta: "bioRxiv, 2025",
+      description: "Differential expression analysis, GSEA, and variant/mutational calling in a murine model of spontaneous T-cell acute lymphoblastic leukaemia, investigating how limited bone-marrow chimerism impairs thymic cell competition and drives leukaemia.",
+      tags: ["DGEA", "GSEA", "Chromossomal abnormalities", "Mouse model"],
+      links: [
+        { label: "Read the preprint", href: "https://www.biorxiv.org/content/10.64898/2025.12.16.694652v2" },
+      ]
+    },
+  ];
+
+  function renderProjects(filter) {
+    const grid = document.getElementById('projectGrid');
+    grid.innerHTML = '';
+    PROJECTS
+      .filter(p => filter === 'all' || p.category === filter)
+      .forEach(p => {
+        const cat = CATEGORIES[p.category];
+        const article = document.createElement('article');
+        if (p.featured) {
+          // full-width "masthead" treatment — keeps the 2x3 rhythm of the regular
+          // cards intact below it instead of leaving an orphan card in its own row
+          article.className = `card-hover md:col-span-2 lg:col-span-3 rounded-xl border-l-4 border-t border-r border-b border-border p-7 md:p-8 flex flex-col md:flex-row md:items-center gap-6 bg-gradient-to-r from-surface to-surface2`;
+          article.style.borderLeftColor = getComputedColor(cat.color);
+          article.innerHTML = `
+            <div class="flex-1">
+              <div class="flex items-center gap-3 mb-3 flex-wrap">
+                <span class="inline-flex items-center rounded-full bg-${cat.color}/10 text-${cat.color} text-xs font-mono px-2.5 py-1">${cat.label}</span>
+                <span class="inline-flex items-center rounded-full bg-ink/5 border border-border text-ink text-xs font-mono px-2.5 py-1">★ Featured</span>
+                <span class="text-xs font-mono text-muted">${p.meta}</span>
+              </div>
+              <h3 class="text-xl font-semibold mb-2">${p.title}</h3>
+              <p class="text-sm text-muted leading-relaxed max-w-3xl">${p.description}</p>
+              <div class="mt-4 flex flex-wrap gap-2 font-mono text-[11px] text-muted">
+                ${p.tags.map(t => `<span class="px-2 py-1 rounded bg-surface2 border border-border">${t}</span>`).join('')}
+              </div>
+            </div>
+            ${p.links.length ? `<div class="flex flex-row md:flex-col gap-3 shrink-0">${p.links.map(l => `<a href="${l.href}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-sm font-medium text-${cat.color} hover:underline whitespace-nowrap">${l.label} →</a>`).join('')}</div>` : ''}
+          `;
+        } else {
+          article.className = `card-hover rounded-xl border-l-4 border-t border-r border-b border-border p-6 flex flex-col bg-surface`;
+          article.style.borderLeftColor = getComputedColor(cat.color);
+          article.innerHTML = `
+            <div class="flex items-center justify-between mb-4 gap-2">
+              <span class="inline-flex items-center rounded-full bg-${cat.color}/10 text-${cat.color} text-xs font-mono px-2.5 py-1">${cat.label}</span>
+              <span class="text-xs font-mono text-muted text-right">${p.meta}</span>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">${p.title}</h3>
+            <p class="text-sm text-muted leading-relaxed flex-1">${p.description}</p>
+            <div class="mt-5 flex flex-wrap gap-2 font-mono text-[11px] text-muted">
+              ${p.tags.map(t => `<span class="px-2 py-1 rounded bg-surface2 border border-border">${t}</span>`).join('')}
+            </div>
+            ${p.links.length ? `<div class="mt-5 flex flex-col gap-1.5">${p.links.map(l => `<a href="${l.href}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-sm text-${cat.color} hover:underline">${l.label} →</a>`).join('')}</div>` : ''}
+          `;
+        }
+        grid.appendChild(article);
+      });
+  }
+
+  // resolves a tailwind colour token (e.g. "adenine") to its hex value, for inline-style border accents
+  const COLOR_HEX = { adenine: '#4fd1c5', thymine: '#f6ad55', guanine: '#f687b3', cytosine: '#63b3ed', collab: '#b794f4' };
+  function getComputedColor(token) { return COLOR_HEX[token] || '#4fd1c5'; }
+
+  renderProjects('all');
+
+  document.getElementById('filterBar').addEventListener('click', (e) => {
+    const btn = e.target.closest('.filter-btn');
+    if (!btn) return;
+    document.querySelectorAll('.filter-btn').forEach(b => {
+      b.className = 'filter-btn px-3 py-1.5 rounded-full border border-border text-muted hover:text-ink';
+    });
+    const cat = CATEGORIES[btn.dataset.filter];
+    const color = cat ? cat.color : 'adenine';
+    btn.className = `filter-btn px-3 py-1.5 rounded-full border border-${color}/50 bg-${color}/10 text-${color}`;
+    renderProjects(btn.dataset.filter);
+  });
+</script>
+
+<!-- ============ PUBLICATIONS (scaffold) ============ -->
+<section id="publications" class="max-w-6xl mx-auto px-6 py-24 border-b border-border">
+  <p class="font-mono text-xs uppercase tracking-[0.25em] text-guanine mb-2">02 — Publications</p>
+  <h2 class="text-3xl font-bold tracking-tight mb-10">Peer-reviewed &amp; preprint work</h2>
+
+  <ul class="space-y-5" id="pubList"></ul>
+
+  <script>
+    const PUBLICATIONS = [
+      {
+        tag: "eLife · 2024",
+        role: "First author",
+        text: "Schneider, A.L.*, Martins-Silva, R.*, <b>Kaizeler, A.*</b>, Saraiva-Agostinho, N., &amp; Barbosa-Morais, N.L. voyAGEr, a free web interface for the analysis of age-related gene expression alterations in human tissues.",
+        link: "https://elifesciences.org/articles/88623"
+      },
+      {
+        tag: "Nat. Commun. · 2026",
+        role: "Co-author",
+        text: "Wagner, V., Bousset, L., Ascensão-Ferreira, M., Sun, B., Barragan Avila, J.E., <b>Kaizeler, A.</b>, et al. Spliceosome induction is a druggable dependency of RAS-driven senescence and cancer.",
+        link: "https://www.nature.com/articles/s41467-026-71564-z"
+      },
+      {
+        tag: "NAR Genom. Bioinform. · 2026",
+        role: "Co-author",
+        text: "Martins-Silva, R., <b>Kaizeler, A.</b>, &amp; Barbosa-Morais, N.L. Exploring molecular signatures of senescence with markeR, an R toolkit for evaluating gene sets as phenotypic markers.",
+        link: "https://academic.oup.com/nargab/article/8/2/lqag057/8703711"
+      },
+      {
+        tag: "bioRxiv · 2025",
+        role: "Co-author",
+        text: "Oliveira, B.S., Paiva, R.A., Pinto, C.C., Paiva, R.V., Pereira, M.X., Ramos, C.V., et al. Limited bone marrow chimerism impairs cell competition in the thymus and causes leukemia.",
+        link: "https://www.biorxiv.org/content/10.64898/2025.12.16.694652v2"
+      },
+      {
+        tag: "Adv. Cancer Res. · 2020",
+        role: "Co-author",
+        text: "Camacho, D., Jesus, J.P., Palma, A.M., Martins, S.A., <b>Kaizeler, A.</b>, Peixoto, M.L., et al. SPARC-p53: The double agents of cancer.",
+        link: "https://pubmed.ncbi.nlm.nih.gov/32723563/"
+      },
+    ];
+    document.getElementById('pubList').innerHTML = PUBLICATIONS.map(p => `
+      <li class="border border-border rounded-xl bg-surface p-5 flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-6">
+        <span class="font-mono text-xs text-muted w-40 shrink-0 pt-0.5">${p.tag}<br><span class="text-muted/60">${p.role}</span></span>
+        <span class="flex-1 text-sm leading-relaxed">${p.text}</span>
+        ${p.link ? `<a href="${p.link}" target="_blank" rel="noopener" class="text-sm text-adenine hover:underline shrink-0">Read paper →</a>` : `<span class="text-xs text-muted/50 shrink-0 font-mono pt-0.5">DOI pending</span>`}
+      </li>
+    `).join('');
+  </script>
+</section>
+
+<!-- ============ SCRIPTS & TOOLS ============ -->
+<section id="tools" class="max-w-6xl mx-auto px-6 py-24 border-b border-border">
+  <p class="font-mono text-xs uppercase tracking-[0.25em] text-thymine mb-2">03 — Scripts &amp; Tools</p>
+  <h2 class="text-3xl font-bold tracking-tight mb-4">Reusable pipeline building blocks</h2>
+  <p class="text-muted max-w-2xl mb-12">Individual scripts pulled straight from the StressGranules and CHARM repositories. Each link opens the file on GitHub.</p>
+
+  <div id="scriptGroups" class="space-y-10"></div>
+</section>
+
+<script>
+  const SCRIPT_GROUPS = [
+    {
+      title: "QC & Alignment",
+      color: "cytosine",
+      base: "https://github.com/DiseaseTranscriptomicsLab/StressGranules/blob/main/Scripts/",
+      items: [
+        { name: "fastqc.sh", note: "Read quality assessment (FastQC)", path: "fastqc.sh" },
+        { name: "trimmommatic.sh", note: "Adapter trimming (Trimmomatic)", path: "trimmommatic.sh" },
+        { name: "alignment.sh", note: "Genome alignment (STAR)", path: "alignment.sh" },
+      ]
+    },
+    {
+      title: "Simulation Pipelines",
+      color: "guanine",
+      base: "https://github.com/DiseaseTranscriptomicsLab/StressGranules/blob/main/Simulations/",
+      items: [
+        { name: "SpinSim.py", note: "Centrifugation simulation from molecular weights", path: "SpinSim/SpinSim.py" },
+        { name: "SpinSim_SedSeq.py", note: "SpinSim variant using empirical sedimentation coefficients", path: "SpinSim/SpinSim_SedSeq.py" },
+        { name: "SedSeq_to_SpinSim_Converter.py", note: "Converts pSup values (from Glauninger, 2025) to sedimentation coefficients", path: "SpinSim/SedSeq_to_SpinSim_Converter.py" },
+        { name: "Mimi-seq.py", note: "RNA-seq (fragmentation) simulation pipeline", path: "MimiSeq/Mimi-seq.py" },
+      ]
+    },
+    {
+      title: "CHARM Analysis Scripts",
+      color: "adenine",
+      base: "https://github.com/DiseaseTranscriptomicsLab/CHARM/blob/main/",
+      items: [
+        { name: "Charm_eCLIPSE.py", note: "eCLIP-to-splicing-map processing (eCLIPSE)", path: "Charm_eCLIPSE.py" },
+        { name: "Charm_eCLIPSE_IR.py", note: "eCLIPSE, intron-retention variant", path: "Charm_eCLIPSE_IR.py" },
+        { name: "pearson_all_vs_all.py", note: "All-vs-all Pearson correlation of RBP profiles", path: "pearson_all_vs_all.py" },
+        { name: "spearman_all_vs_all.py", note: "All-vs-all Spearman correlation of RBP profiles", path: "spearman_all_vs_all.py" },
+        { name: "wasserstein_all_vs_all.py", note: "All-vs-all Wasserstein distance of RBP profiles", path: "wasserstein_all_vs_all.py" },
+      ]
+    },
+  ];
+
+  document.getElementById('scriptGroups').innerHTML = SCRIPT_GROUPS.map(group => `
+    <div>
+      <h3 class="font-mono text-xs uppercase tracking-[0.15em] text-${group.color} mb-3">${group.title}</h3>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        ${group.items.map(item => `
+          <a href="${group.base}${item.path}" target="_blank" rel="noopener"
+             class="card-hover block rounded-lg border border-border bg-surface px-4 py-3 font-mono text-sm text-ink hover:border-${group.color}/50">
+            ${item.name}
+            <span class="block mt-1 text-xs text-muted font-sans">${item.note}</span>
+          </a>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+</script>
+
+<!-- ============ RESUME (full web CV) ============ -->
+<section id="resume" class="max-w-6xl mx-auto px-6 py-24 border-b border-border">
+  <div class="flex items-start justify-between flex-wrap gap-6 mb-10">
+    <div>
+      <p class="font-mono text-xs uppercase tracking-[0.25em] text-cytosine mb-2">04 — Resume</p>
+      <h2 class="text-3xl font-bold tracking-tight">Web CV</h2>
+    </div>
+    <a href="Alexandre_Kaizeler_CV.pdf"
+       class="shrink-0 inline-flex items-center gap-2 rounded-md bg-adenine text-bg font-semibold text-sm px-5 py-2.5 hover:bg-adenine/90 transition-colors">
+      Download Full PDF
+    </a>
+  </div>
+
+  <div class="rounded-xl border border-border bg-surface p-8 md:p-10 space-y-10">
+
+    <!-- summary -->
+    <div>
+      <p class="text-muted leading-relaxed">
+        Computational biologist with 4+ years of experience analysing large-scale, high-dimensional
+        biological datasets and translating complex findings into clear, decision-ready scientific
+        narratives. As first and corresponding author, led a reanalysis of public transcriptomic data,
+        rigorously separating genuine biological signal from technical artifacts. Built public tools
+        (voyAGEr, CHARM) to make advanced statistical analyses interpretable to non-expert audiences.
+        Native Portuguese speaker, professional working English (C2).
+      </p>
+    </div>
+
+    <!-- skills -->
+    <div>
+      <h3 class="font-mono text-xs uppercase tracking-[0.2em] text-adenine mb-4">Technical Skills</h3>
+      <div class="grid sm:grid-cols-2 gap-4 text-sm">
+        <div class="rounded-lg border border-border bg-surface2 p-4">
+          <p class="font-semibold text-ink mb-1">Programming</p>
+          <p class="text-muted">R (advanced), Python (proficient)</p>
+        </div>
+        <div class="rounded-lg border border-border bg-surface2 p-4">
+          <p class="font-semibold text-ink mb-1">ML / Statistics</p>
+          <p class="text-muted">Statistical modeling, hypothesis testing, PCA, classification (Elastic Net, Sparse Centroids)</p>
+        </div>
+        <div class="rounded-lg border border-border bg-surface2 p-4">
+          <p class="font-semibold text-ink mb-1">Genomics &amp; Sequencing</p>
+          <p class="text-muted">DGEA, differential splicing, GSEA, variant calling, mutational analysis, NGS QC (FastQC/MultiQC)</p>
+        </div>
+        <div class="rounded-lg border border-border bg-surface2 p-4">
+          <p class="font-semibold text-ink mb-1">Data Visualization</p>
+          <p class="text-muted">R Shiny, plotly, ggplot2, interactive dashboards for non-technical end users</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- experience -->
+    <div>
+      <h3 class="font-mono text-xs uppercase tracking-[0.2em] text-guanine mb-4">Professional Experience</h3>
+
+      <div class="border-l-2 border-border pl-5 mb-6">
+        <p class="font-semibold text-ink">Computational Biologist / PhD Researcher</p>
+        <p class="text-sm text-muted mb-3">Gulbenkian Institute for Molecular Medicine (GIMM) / Instituto de Medicina Molecular, University of Lisbon — Feb 2022 – Present</p>
+        <ul class="text-sm text-muted space-y-2 list-disc list-outside ml-4">
+          <li>Led a large-scale reanalysis of 16 independent public stress-granule transcriptomic datasets, correcting a previously unrecognised length-based technical bias and identifying mitochondrial RNA enrichment as a reproducible signal with a proposed role in immune signalling.</li>
+          <li>Co-led development of <b class="text-ink">voyAGEr</b>, a public web app processing RNA-seq data from 900+ individuals across 49 tissues (GTEx). Built statistical backend and interactive front-end.</li>
+          <li>Designed and built <b class="text-ink">CHARM</b>, an R Shiny analytics platform for similarity search, correlation analysis, and GSEA-based pathway enrichment of RNA-binding proteins, engineered for performance at scale.</li>
+          <li>Contributed to <b class="text-ink">markeR</b>, an open-source R package for gene set-level analysis, passing Bioconductor's formal peer review for public release.</li>
+        </ul>
+      </div>
+
+      <div class="border-l-2 border-border pl-5">
+        <p class="font-semibold text-ink">Research Intern, MSc Thesis</p>
+        <p class="text-sm text-muted mb-3">Champalimaud Foundation — 2020 – 2021</p>
+        <ul class="text-sm text-muted space-y-2 list-disc list-outside ml-4">
+          <li>Investigated cell competition using a colorectal cancer co-culture model; ran RNA-seq differential expression analysis comparing winner and loser cells.</li>
+          <li>Validated candidate genes by RT-qPCR and functional knockdowns, identifying three genes required for loser-cell elimination, and linked cell competition to cell migration and chemotherapy response for the first time in this cancer type.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- education -->
+    <div>
+      <h3 class="font-mono text-xs uppercase tracking-[0.2em] text-thymine mb-4">Education</h3>
+      <ul class="text-sm text-muted space-y-1.5">
+        <li><b class="text-ink">PhD, Biomedical Sciences</b> — University of Lisbon (Feb 2022 – Present)</li>
+        <li><b class="text-ink">MSc, Oncobiology</b> — University of Lisbon (2018 – 2021)</li>
+        <li><b class="text-ink">BSc, Biomedical Sciences</b> — University of Algarve (2015 – 2018)</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ BEYOND THE BENCH (personal) ============ -->
+<section id="personal" class="max-w-6xl mx-auto px-6 py-24 border-b border-border">
+  <p class="font-mono text-xs uppercase tracking-[0.25em] text-guanine mb-2">05 — Beyond the Desk</p>
+  <h2 class="text-3xl font-bold tracking-tight mb-10">When I'm not staring at volcano plots</h2>
+
+  <div class="rounded-xl border border-border bg-surface p-8 md:p-10 grid md:grid-cols-[1fr_auto] gap-10 items-center">
+    <div class="space-y-6">
+      <div class="flex gap-4 items-start">
+        <span class="text-2xl leading-none">🎲</span>
+        <div>
+          <p class="font-semibold text-ink">Forever Dungeon Master, for more than 12 years</p>
+          <p class="text-sm text-muted mt-1">Same logic either way: hold a large, branching, interdependent system in your head, keep it internally consistent, and adapt on the fly when a player (or a variable) does something you didn't plan for.</p>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start">
+        <span class="text-2xl leading-none">🎮</span>
+        <div>
+          <p class="font-semibold text-ink">Avid gamer</p>
+          <p class="text-sm text-muted mt-1">As if looking at data the whole day wasn't enough, I love to unwind by looking at "spreadsheet simulators".</p>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start">
+        <span class="text-2xl leading-none">🐈</span>
+        <div>
+          <p class="font-semibold text-ink">Cat person</p>
+          <p class="text-sm text-muted mt-1">They act as code reviewers, and love to add their own suggestions by walking all over the keyboard.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-center">
+      <svg id="catSvg" viewBox="0 0 220 230" class="w-44 h-44 sm:w-56 sm:h-56" aria-hidden="true">
+        <!-- tail, hooked like a "?" instead of a straight arm-like arc -->
+        <path class="cat-tail" d="M180,206 C210,197 214,155 196,127 C186,111 166,109 164,125" fill="none" stroke="#4fd1c5" stroke-width="9" stroke-linecap="round"/>
+        <!-- loaf body: a rounded dome (no flat "shoulder" line, which is what made it read
+             as a bust) shifted right of the head so it peeks out asymmetrically, cat-like -->
+        <path d="M55,208 C50,148 92,138 118,138 C172,138 188,148 183,208 C183,222 155,224 118,224 C82,224 55,222 55,208 Z" fill="#161d28" stroke="#63b3ed" stroke-width="3"/>
+        <!-- ears -->
+        <polygon points="47,85 64,35 87,88" fill="#161d28" stroke="#63b3ed" stroke-width="3" stroke-linejoin="round"/>
+        <polygon points="97,88 120,35 137,85" fill="#161d28" stroke="#63b3ed" stroke-width="3" stroke-linejoin="round"/>
+        <polygon points="54,78 64,52 76,80" fill="#f687b3" opacity="0.55"/>
+        <polygon points="108,80 120,52 130,78" fill="#f687b3" opacity="0.55"/>
+        <!-- head, sitting left of the body's centre -->
+        <circle cx="92" cy="120" r="56" fill="#161d28" stroke="#63b3ed" stroke-width="3"/>
+        <!-- eyes (blink via CSS animation, synced together) -->
+        <g class="cat-eye">
+          <circle cx="72" cy="115" r="9" fill="#e6edf3"/>
+          <circle cx="72" cy="115" r="4.5" fill="#0a0e14"/>
+        </g>
+        <g class="cat-eye">
+          <circle cx="112" cy="115" r="9" fill="#e6edf3"/>
+          <circle cx="112" cy="115" r="4.5" fill="#0a0e14"/>
+        </g>
+        <!-- nose -->
+        <polygon points="92,132 86,140 98,140" fill="#f687b3"/>
+        <!-- mouth -->
+        <path d="M92,140 Q80,152 66,142" fill="none" stroke="#8b98a9" stroke-width="2" stroke-linecap="round"/>
+        <path d="M92,140 Q104,152 118,142" fill="none" stroke="#8b98a9" stroke-width="2" stroke-linecap="round"/>
+        <!-- whiskers -->
+        <line x1="42" y1="128" x2="10" y2="121" stroke="#8b98a9" stroke-width="1.5"/>
+        <line x1="42" y1="136" x2="10" y2="138" stroke="#8b98a9" stroke-width="1.5"/>
+        <line x1="142" y1="128" x2="174" y2="121" stroke="#8b98a9" stroke-width="1.5"/>
+        <line x1="142" y1="136" x2="174" y2="138" stroke="#8b98a9" stroke-width="1.5"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACT / FOOTER ============ -->
+<footer id="contact" class="max-w-6xl mx-auto px-6 py-20">
+  <div class="rounded-2xl border border-border bg-surface p-10 text-center">
+    <h2 class="text-2xl font-bold mb-3">I pronounce it "data".</h2>
+    <p class="text-muted mb-6">Open to roles in biotech &amp; pharma.</p>
+    <div class="flex flex-wrap justify-center gap-4 font-mono text-sm">
+      <a href="mailto:alexandre.kaizeler.afonso@gmail.com" class="text-adenine hover:underline">alexandre.kaizeler.afonso@gmail.com</a>
+      <span class="text-border">·</span>
+      <a href="https://linkedin.com/in/alexandre-kaizeler/" target="_blank" rel="noopener" class="text-muted hover:text-ink">LinkedIn</a>
+      <span class="text-border">·</span>
+      <a href="https://github.com/A-Kaizeler-A" target="_blank" rel="noopener" class="text-muted hover:text-ink">GitHub</a>
+    </div>
+  </div>
+  <p class="text-center text-xs text-muted/60 mt-8 font-mono">© <span id="year"></span> Alexandre Kaizeler — built with Tailwind &amp; vanilla JS, with help from Claude Sonnet 5.</p>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  const menuBtn = document.getElementById('menuBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+  mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileMenu.classList.add('hidden')));
+
+  // Build the decorative RNA strand — single backbone (RNA, not DNA), continuously
+  // rotating so it visibly moves rather than sitting static in the hero.
+  (function drawRNA(){
+    const g = document.getElementById('rnaGroup');
+    if (!g) return;
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const W = 480, H = 260, midY = H / 2;
+    const N = 26;           // bases along the strand
+    const amplitude = 78;   // vertical swing
+    const twists = 3;       // full corkscrew turns across the width
+
+    // real RNA base colours — Uracil, not Thymine
+    const BASE_COLORS = { A: '#4fd1c5', U: '#f6ad55', G: '#f687b3', C: '#63b3ed' };
+    const seq = ['A', 'U', 'G', 'C'];
+
+    const backbone = document.createElementNS(svgNS, 'path');
+    backbone.setAttribute('fill', 'none');
+    backbone.setAttribute('stroke', 'rgba(139,152,169,0.4)');
+    backbone.setAttribute('stroke-width', '2');
+    backbone.setAttribute('stroke-linecap', 'round');
+    g.appendChild(backbone);
+
+    const nodes = [];
+    for (let i = 0; i < N; i++) {
+      const x = (W / (N - 1)) * i;
+      const basePhase = (i / N) * Math.PI * 2 * twists;
+      const base = seq[i % seq.length];
+      const circle = document.createElementNS(svgNS, 'circle');
+      circle.setAttribute('fill', BASE_COLORS[base]);
+      g.appendChild(circle);
+      nodes.push({ x, basePhase, circle });
+    }
+
+    function frame(t) {
+      let d = '';
+      nodes.forEach((n, i) => {
+        const y = midY + Math.sin(n.basePhase + t) * amplitude;
+        const depth = Math.cos(n.basePhase + t); // -1..1 — simulates rotation toward/away from viewer
+        const scale = 0.55 + 0.45 * (depth + 1) / 2;
+        const opacity = 0.4 + 0.6 * (depth + 1) / 2;
+        n.circle.setAttribute('cx', n.x);
+        n.circle.setAttribute('cy', y);
+        n.circle.setAttribute('r', (5 * scale).toFixed(2));
+        n.circle.setAttribute('opacity', opacity.toFixed(2));
+        d += (i === 0 ? 'M' : 'L') + n.x.toFixed(1) + ',' + y.toFixed(1) + ' ';
+      });
+      backbone.setAttribute('d', d);
+    }
+
+    frame(0);
+
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!prefersReduced) {
+      let t = 0;
+      function animate(){
+        t += 0.011;
+        frame(t);
+        requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+    }
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,14 @@
+# Local working files kept on disk but not published to the public Portfolio repo.
+# The live site links to these projects' own separate GitHub repos instead of
+# shipping a duplicate copy here (see index.html project links).
+/CHARM/
+/PhDThesis/
+/StressGranules/
+/CHARM.docx
+/SGPaper.docx
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.tmp
+~$*
