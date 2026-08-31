@@ -9,28 +9,31 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
 <script>
   tailwind.config = {
     theme: {
       extend: {
         colors: {
-          bg: '#0a0e14',
-          surface: '#10151d',
-          surface2: '#161d28',
-          border: '#232b38',
-          adenine: '#4fd1c5',   // teal
-          thymine: '#f6ad55',   // amber
-          guanine: '#f687b3',   // pink
-          cytosine: '#63b3ed',  // blue
-          collab: '#b794f4',    // violet — 5th category colour (not a base, deliberately distinct)
-          ink: '#e6edf3',
-          muted: '#8b98a9',
+          bg: '#1e1e1e',        // editor background
+          titlebar: '#323233',
+          statusbar: '#0e639c',
+          surface: '#252526',   // sidebar / panel background
+          surface2: '#2d2d30',  // card background
+          border: '#3c3c3c',
+          comment: '#6a9955',   // section-label / comment green
+          adenine: '#4ec9b0',   // teal — class-name color
+          thymine: '#ce9178',   // orange — string color
+          guanine: '#c586c0',   // magenta — keyword color
+          cytosine: '#569cd6',  // blue — keyword color
+          collab: '#dcdcaa',    // yellow — function-name color
+          ink: '#d4d4d4',
+          muted: '#9d9d9d',
         },
         fontFamily: {
-          sans: ['Inter', 'sans-serif'],
-          mono: ['JetBrains Mono', 'monospace'],
+          sans: ['IBM Plex Sans', 'sans-serif'],
+          mono: ['IBM Plex Mono', 'monospace'],
         },
       },
     },
@@ -39,67 +42,37 @@
 
 <style>
   html { scroll-behavior: smooth; }
-  body { background-color: #0a0e14; }
+  body { background-color: #1e1e1e; }
 
-  .bp-grid {
-    background-image:
-      linear-gradient(rgba(79,209,197,0.06) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(79,209,197,0.06) 1px, transparent 1px);
-    background-size: 36px 36px;
+  /* ---- App chrome: title bar (top) + sidebar (left) + status bar (bottom) ---- */
+  #titleBar { height: 40px; }
+  #statusBar { height: 26px; }
+  #sidebar {
+    top: 40px; bottom: 26px; width: 250px;
+    overflow-y: auto;
   }
-
-  /* ---- Laptop mockup housing the RNA hero animation ---- */
-  .laptop { width: 100%; max-width: 460px; margin: 0 auto; }
-  .laptop-screen {
-    position: relative;
-    aspect-ratio: 16 / 10;
-    background: radial-gradient(120% 120% at 50% 0%, #121a24 0%, #0a0e14 70%);
-    border: 10px solid #1b232f;
-    border-bottom-width: 4px;
-    border-radius: 14px 14px 4px 4px;
-    overflow: hidden;
-    box-shadow: inset 0 0 40px rgba(0,0,0,0.55), 0 20px 50px -20px rgba(0,0,0,0.7);
-  }
-  .laptop-cam {
-    position: absolute; top: 4px; left: 50%; transform: translateX(-50%);
-    width: 5px; height: 5px; border-radius: 999px; background: #2a3444; z-index: 5;
-  }
-  .laptop-base {
-    position: relative;
-    height: 14px;
-    background: linear-gradient(180deg, #232b38, #171d27);
-    border-radius: 0 0 3px 3px;
-  }
-  .laptop-base::after {
-    content: '';
-    position: absolute; left: -7%; right: -7%; bottom: 0; height: 9px;
-    background: linear-gradient(180deg, #1e2530, #12161d);
-    clip-path: polygon(3% 0, 97% 0, 100% 100%, 0% 100%);
-    border-radius: 0 0 7px 7px;
+  #mainCol { padding-top: 40px; padding-bottom: 26px; }
+  @media (min-width: 768px) {
+    #mainCol { margin-left: 250px; }
   }
 
-  .glow-text {
-    background: linear-gradient(90deg, #4fd1c5, #63b3ed 45%, #f687b3);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+  .traffic-dot { width: 11px; height: 11px; border-radius: 999px; }
+
+  .navitem { position: relative; }
+  .navitem.active { background: rgba(255,255,255,0.06); }
+  .navitem.active::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: #569cd6;
   }
 
-  .card-hover { transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
-  .card-hover:hover { transform: translateY(-3px); border-color: rgba(79,209,197,0.5); box-shadow: 0 12px 28px -12px rgba(0,0,0,0.6); }
+  .card-hover { transition: border-color .15s ease; }
+  .card-hover:hover { border-color: rgba(86,156,214,0.5); }
 
-  .nav-link { position: relative; }
-  .nav-link::after {
-    content: ''; position: absolute; left: 0; bottom: -4px; height: 1px; width: 0%;
-    background: #4fd1c5; transition: width .2s ease;
-  }
-  .nav-link:hover::after { width: 100%; }
+  ::selection { background: rgba(86,156,214,0.35); color: #ffffff; }
 
-  ::selection { background: rgba(79,209,197,0.35); color: #e6edf3; }
-
-  .scanline {
-    background: repeating-linear-gradient(180deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 3px);
-  }
+  /* ---- Mock code-editor window housing the DNA hero animation ---- */
+  .mock-window { width: 100%; max-width: 460px; margin: 0 auto; border-radius: 6px; overflow: hidden; border: 1px solid #3c3c3c; box-shadow: 0 20px 45px -25px rgba(0,0,0,0.7); }
+  .mock-titlebar { background: #323233; height: 34px; }
+  .mock-body { background: #1e1e1e; aspect-ratio: 16 / 10.5; position: relative; }
 
   /* ---- Cat mascot (Beyond the Bench) ---- */
   .cat-tail {
@@ -131,73 +104,106 @@
 
 <body class="bg-bg text-ink font-sans antialiased">
 
-<!-- ============ NAV ============ -->
-<header class="fixed top-0 inset-x-0 z-50 border-b border-border/80 bg-bg/80 backdrop-blur-md">
-  <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-    <a href="#top" class="font-mono text-sm font-semibold tracking-tight text-ink">
-      <span class="text-adenine">&gt;</span> AKaizeler<span class="text-muted">.bio</span>
-    </a>
-    <nav class="hidden md:flex items-center gap-8 text-sm text-muted font-medium">
-      <a href="#projects" class="nav-link hover:text-ink">Projects</a>
-      <a href="#publications" class="nav-link hover:text-ink">Publications</a>
-      <a href="#tools" class="nav-link hover:text-ink">Scripts &amp; Tools</a>
-      <a href="#resume" class="nav-link hover:text-ink">Resume</a>
-      <a href="#personal" class="nav-link hover:text-ink">Beyond the Desk</a>
-      <a href="#contact" class="nav-link hover:text-ink">Contact</a>
-    </nav>
-    <div class="flex items-center gap-3">
-      <a href="https://github.com/A-Kaizeler-A" target="_blank" rel="noopener"
-         class="hidden sm:inline-flex items-center gap-2 text-sm text-muted hover:text-ink transition-colors">
-        GitHub
-      </a>
-      <a href="#resume"
-         class="inline-flex items-center gap-2 rounded-md border border-adenine/40 bg-adenine/10 px-3 py-1.5 text-sm font-medium text-adenine hover:bg-adenine/20 transition-colors">
-        View CV
-      </a>
-      <button id="menuBtn" class="md:hidden text-muted hover:text-ink" aria-label="Open menu">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-      </button>
+<!-- ============ TITLE BAR (fixed top, OS-window chrome) ============ -->
+<header id="titleBar" class="fixed top-0 inset-x-0 z-50 bg-titlebar border-b border-border flex items-center justify-between px-4">
+  <div class="flex items-center gap-4 min-w-0">
+    <div class="flex items-center gap-1.5 shrink-0" aria-hidden="true">
+      <span class="traffic-dot bg-[#c9726b]"></span>
+      <span class="traffic-dot bg-[#c9a86a]"></span>
+      <span class="traffic-dot bg-[#7fae82]"></span>
     </div>
+    <button id="menuBtn" class="md:hidden text-muted hover:text-ink shrink-0" aria-label="Open navigation">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <span class="font-mono text-xs text-muted truncate hidden sm:inline">Alexandre Kaizeler</span>
   </div>
-  <!-- mobile menu -->
-  <nav id="mobileMenu" class="hidden md:hidden border-t border-border bg-bg/95 px-6 py-4 flex flex-col gap-4 text-sm text-muted font-medium">
-    <a href="#projects" class="hover:text-ink">Projects</a>
-    <a href="#publications" class="hover:text-ink">Publications</a>
-    <a href="#tools" class="hover:text-ink">Scripts &amp; Tools</a>
-    <a href="#resume" class="hover:text-ink">Resume</a>
-    <a href="#personal" class="hover:text-ink">Beyond the Bench</a>
-    <a href="#contact" class="hover:text-ink">Contact</a>
-  </nav>
+  <div class="flex items-center gap-4 shrink-0">
+    <a href="https://github.com/A-Kaizeler-A" target="_blank" rel="noopener" class="hidden sm:inline text-xs font-mono text-muted hover:text-ink transition-colors">github</a>
+    <a href="#resume" class="text-xs font-mono px-2.5 py-1 rounded border border-cytosine/40 text-cytosine hover:bg-cytosine/10 transition-colors">view_cv()</a>
+  </div>
 </header>
 
-<!-- ============ HERO ============ -->
-<section id="top" class="relative overflow-hidden bp-grid pt-40 pb-28 md:pt-48 md:pb-36 border-b border-border">
-  <div class="pointer-events-none absolute inset-0 scanline opacity-40"></div>
-  <div class="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-adenine/10 blur-3xl"></div>
+<!-- ============ SIDEBAR (fixed left, file-explorer nav) ============ -->
+<nav id="sidebar" class="hidden md:block fixed left-0 z-40 bg-surface border-r border-border py-4 text-sm">
+  <p class="font-mono text-[11px] tracking-[0.15em] text-muted px-4 mb-3">EXPLORER</p>
+  <p class="font-mono text-xs font-semibold text-ink px-4 mb-1">▾ portfolio</p>
+  <div class="mt-1">
+    <a data-section="top" class="navitem flex items-center gap-2 pl-8 pr-4 py-1.5 font-mono text-xs text-muted hover:text-ink">
+      <span class="w-2 h-2 rounded-sm shrink-0" style="background:#569cd6"></span> summary.md
+    </a>
+    <p class="font-mono text-xs text-muted pl-8 pt-2 pb-1">▾ work</p>
+    <a data-section="projects" class="navitem flex items-center gap-2 pl-12 pr-4 py-1.5 font-mono text-xs text-muted hover:text-ink">
+      <span class="w-2 h-2 rounded-sm shrink-0" style="background:#4ec9b0"></span> projects.R
+    </a>
+    <a data-section="publications" class="navitem flex items-center gap-2 pl-12 pr-4 py-1.5 font-mono text-xs text-muted hover:text-ink">
+      <span class="w-2 h-2 rounded-sm shrink-0" style="background:#6a9955"></span> publications.bib
+    </a>
+    <a data-section="tools" class="navitem flex items-center gap-2 pl-12 pr-4 py-1.5 font-mono text-xs text-muted hover:text-ink">
+      <span class="w-2 h-2 rounded-sm shrink-0" style="background:#9d9d9d"></span> scripts/
+    </a>
+    <a data-section="resume" class="navitem flex items-center gap-2 pl-8 pr-4 py-1.5 font-mono text-xs text-muted hover:text-ink">
+      <span class="w-2 h-2 rounded-sm shrink-0" style="background:#ce9178"></span> cv.pdf
+    </a>
+    <a data-section="personal" class="navitem flex items-center gap-2 pl-8 pr-4 py-1.5 font-mono text-xs text-muted hover:text-ink">
+      <span class="w-2 h-2 rounded-sm shrink-0" style="background:#dcdcaa"></span> beyond_the_desk.js
+    </a>
+    <a data-section="contact" class="navitem flex items-center gap-2 pl-8 pr-4 py-1.5 font-mono text-xs text-muted hover:text-ink">
+      <span class="w-2 h-2 rounded-sm shrink-0" style="background:#c586c0"></span> contact.txt
+    </a>
+  </div>
+</nav>
 
-  <div class="relative max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-14 items-center">
+<!-- mobile nav (dropdown from title bar) -->
+<nav id="mobileMenu" class="hidden md:hidden fixed top-10 inset-x-0 z-40 bg-surface border-b border-border px-4 py-3 flex flex-col font-mono text-sm text-muted">
+  <a href="#top" class="py-2 hover:text-ink">summary.md</a>
+  <a href="#projects" class="py-2 hover:text-ink">projects.R</a>
+  <a href="#publications" class="py-2 hover:text-ink">publications.bib</a>
+  <a href="#tools" class="py-2 hover:text-ink">scripts/</a>
+  <a href="#resume" class="py-2 hover:text-ink">cv.pdf</a>
+  <a href="#personal" class="py-2 hover:text-ink">beyond_the_desk.js</a>
+  <a href="#contact" class="py-2 hover:text-ink">contact.txt</a>
+</nav>
+
+<!-- ============ STATUS BAR (fixed bottom) ============ -->
+<footer id="statusBar" class="fixed bottom-0 inset-x-0 z-50 bg-statusbar flex items-center justify-between px-4 text-[11px] font-mono text-white/90">
+  <div class="flex items-center gap-4 truncate">
+    <span>⎇ main</span>
+    <span id="statusFile" class="truncate">summary.md</span>
+  </div>
+  <div class="hidden sm:flex items-center gap-4">
+    <span>● no problems</span>
+    <span>UTF-8</span>
+    <span>Plain Text</span>
+  </div>
+</footer>
+
+<div id="mainCol">
+
+<!-- ============ HERO ============ -->
+<section id="top" class="px-6 md:px-10 py-16 md:py-20 border-b border-border">
+  <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
 
     <!-- text column -->
     <div>
-      <p class="font-mono text-xs uppercase tracking-[0.25em] text-adenine mb-5">Computational Biology and Data Science</p>
-      <h1 class="text-4xl sm:text-5xl font-extrabold leading-[1.1] tracking-tight">
+      <p class="font-mono text-xs text-comment mb-4">// computational biology &amp; data science</p>
+      <h1 class="text-4xl sm:text-5xl font-bold leading-[1.1] tracking-tight text-ink">
         Alexandre Kaizeler
       </h1>
-      <p class="mt-2 text-xl sm:text-2xl font-semibold glow-text">
+      <p class="mt-3 text-lg sm:text-xl font-medium text-[#c9c9c9]">
         Translating transcriptomic complexity into biological insights.
       </p>
-      <p class="mt-6 text-muted leading-relaxed max-w-lg">
+      <p class="mt-6 text-[#b3b3b3] leading-relaxed max-w-lg">
         PhD researcher in Biomedical Sciences building statistical pipelines, R Shiny applications,
         and reproducible analysis frameworks for large-scale RNA-seq data. From a
         900-subject / 49-tissue web tool published in <em>eLife</em>, to a meta-analysis of stress granules transcriptomes, to a web app of all things RBP related.
       </p>
 
-      <div class="mt-8 flex flex-wrap gap-3">
-        <a href="#projects" class="rounded-md bg-adenine text-bg font-semibold text-sm px-5 py-2.5 hover:bg-adenine/90 transition-colors">
-          Explore my work
+      <div class="mt-8 flex flex-wrap gap-3 font-mono text-sm">
+        <a href="#projects" class="rounded border border-cytosine/40 bg-cytosine/10 text-cytosine px-4 py-2 hover:bg-cytosine/20 transition-colors">
+          <span class="text-guanine">explore</span>_work()
         </a>
-        <a href="#contact" class="rounded-md border border-border text-ink text-sm font-medium px-5 py-2.5 hover:border-adenine/50 hover:text-adenine transition-colors">
-          Get in touch
+        <a href="#contact" class="rounded border border-border text-ink px-4 py-2 hover:border-cytosine/40 hover:text-cytosine transition-colors">
+          <span class="text-guanine">get</span>_in_touch()
         </a>
       </div>
 
@@ -210,16 +216,22 @@
       </div>
     </div>
 
-    <!-- Animated RNA strand inside a laptop mockup (decorative hero graphic, not a nav) -->
+    <!-- Animated DNA double helix inside a mock code-editor window -->
     <div class="flex items-center justify-center" aria-hidden="true">
-      <div class="laptop">
-        <div class="laptop-screen">
-          <div class="laptop-cam"></div>
+      <div class="mock-window">
+        <div class="mock-titlebar flex items-center gap-3 px-3">
+          <div class="flex items-center gap-1.5" aria-hidden="true">
+            <span class="traffic-dot bg-[#c9726b]" style="width:9px;height:9px"></span>
+            <span class="traffic-dot bg-[#c9a86a]" style="width:9px;height:9px"></span>
+            <span class="traffic-dot bg-[#7fae82]" style="width:9px;height:9px"></span>
+          </div>
+          <span class="font-mono text-[11px] text-muted">helix.py</span>
+        </div>
+        <div class="mock-body">
           <svg viewBox="0 0 480 260" class="w-full h-full">
-            <g id="rnaGroup"></g>
+            <g id="dnaGroup"></g>
           </svg>
         </div>
-        <div class="laptop-base"></div>
       </div>
     </div>
 
@@ -227,24 +239,24 @@
 </section>
 
 <!-- ============ PROJECTS (data-driven, filterable) ============ -->
-<section id="projects" class="max-w-6xl mx-auto px-6 py-24 border-b border-border">
+<section id="projects" class="max-w-5xl mx-auto px-6 md:px-10 py-20 border-b border-border">
   <div class="mb-2">
-    <p class="font-mono text-xs uppercase tracking-[0.25em] text-cytosine mb-2">01 — Computational Projects</p>
-    <h2 class="text-3xl font-bold tracking-tight">Pipelines &amp; tools built for research</h2>
+    <p class="font-mono text-xs text-comment mb-2">// computational projects</p>
+    <h2 class="text-2xl font-bold tracking-tight text-ink">Pipelines &amp; tools built for research</h2>
   </div>
   <p class="text-muted max-w-2xl mb-8">A list of my projects and their descriptions.</p>
 
   <!-- filter bar -->
   <div id="filterBar" class="flex flex-wrap gap-2 mb-10 font-mono text-xs">
-    <button data-filter="all" class="filter-btn px-3 py-1.5 rounded-full border border-adenine/50 bg-adenine/10 text-adenine">All</button>
-    <button data-filter="tool" class="filter-btn px-3 py-1.5 rounded-full border border-border text-muted hover:text-ink">Published Tools</button>
-    <button data-filter="pipeline" class="filter-btn px-3 py-1.5 rounded-full border border-border text-muted hover:text-ink">Pipelines &amp; Analyses</button>
-    <button data-filter="package" class="filter-btn px-3 py-1.5 rounded-full border border-border text-muted hover:text-ink">Packages</button>
-    <button data-filter="case-study" class="filter-btn px-3 py-1.5 rounded-full border border-border text-muted hover:text-ink">Case Studies</button>
-    <button data-filter="collaboration" class="filter-btn px-3 py-1.5 rounded-full border border-border text-muted hover:text-ink">Collaborations</button>
+    <button data-filter="all" class="filter-btn px-3 py-1.5 rounded border border-cytosine/50 bg-cytosine/10 text-cytosine">[ all ]</button>
+    <button data-filter="tool" class="filter-btn px-3 py-1.5 rounded border border-border text-muted hover:text-ink">[ tools ]</button>
+    <button data-filter="pipeline" class="filter-btn px-3 py-1.5 rounded border border-border text-muted hover:text-ink">[ pipelines ]</button>
+    <button data-filter="package" class="filter-btn px-3 py-1.5 rounded border border-border text-muted hover:text-ink">[ packages ]</button>
+    <button data-filter="case-study" class="filter-btn px-3 py-1.5 rounded border border-border text-muted hover:text-ink">[ case-studies ]</button>
+    <button data-filter="collaboration" class="filter-btn px-3 py-1.5 rounded border border-border text-muted hover:text-ink">[ collabs ]</button>
   </div>
 
-  <div id="projectGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+  <div id="projectGrid" class="grid md:grid-cols-2 gap-5"></div>
 </section>
 
 <script>
@@ -252,9 +264,9 @@
   const CATEGORIES = {
     "tool":          { label: "Published Tool",     color: "adenine"  }, // teal
     "pipeline":      { label: "Pipeline / Analysis", color: "cytosine" }, // blue
-    "package":       { label: "Open-Source Package", color: "guanine"  }, // pink
-    "case-study":    { label: "Case Study",          color: "thymine"  }, // amber
-    "collaboration": { label: "Collaboration",       color: "collab"   }, // violet
+    "package":       { label: "Open-Source Package", color: "guanine"  }, // magenta
+    "case-study":    { label: "Case Study",          color: "thymine"  }, // orange
+    "collaboration": { label: "Collaboration",       color: "collab"   }, // yellow
   };
 
   // ---- Project data (source of truth for the grid above) ----
@@ -343,48 +355,54 @@
         const cat = CATEGORIES[p.category];
         const article = document.createElement('article');
         if (p.featured) {
-          // full-width "masthead" treatment — keeps the 2x3 rhythm of the regular
+          // full-width "masthead" treatment — keeps the 2-column rhythm of the regular
           // cards intact below it instead of leaving an orphan card in its own row
-          article.className = `card-hover md:col-span-2 lg:col-span-3 rounded-xl border-l-4 border-t border-r border-b border-border p-7 md:p-8 flex flex-col md:flex-row md:items-center gap-6 bg-gradient-to-r from-surface to-surface2`;
-          article.style.borderLeftColor = getComputedColor(cat.color);
+          article.className = `card-hover md:col-span-2 rounded-md border border-border bg-surface2 overflow-hidden`;
           article.innerHTML = `
-            <div class="flex-1">
-              <div class="flex items-center gap-3 mb-3 flex-wrap">
-                <span class="inline-flex items-center rounded-full bg-${cat.color}/10 text-${cat.color} text-xs font-mono px-2.5 py-1">${cat.label}</span>
-                <span class="inline-flex items-center rounded-full bg-ink/5 border border-border text-ink text-xs font-mono px-2.5 py-1">★ Featured</span>
-                <span class="text-xs font-mono text-muted">${p.meta}</span>
+            <div class="flex items-center justify-between gap-3 flex-wrap px-4 py-2 border-b border-border" style="background:rgba(255,255,255,0.02)">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="w-2 h-2 rounded-sm" style="background:${getComputedColor(cat.color)}"></span>
+                <span class="font-mono text-xs text-${cat.color}">${cat.label}</span>
+                <span class="font-mono text-xs text-collab">★ featured</span>
               </div>
-              <h3 class="text-xl font-semibold mb-2">${p.title}</h3>
-              <p class="text-sm text-muted leading-relaxed max-w-3xl">${p.description}</p>
-              <div class="mt-4 flex flex-wrap gap-2 font-mono text-[11px] text-muted">
-                ${p.tags.map(t => `<span class="px-2 py-1 rounded bg-surface2 border border-border">${t}</span>`).join('')}
-              </div>
+              <span class="text-xs font-mono text-muted">${p.meta}</span>
             </div>
-            ${p.links.length ? `<div class="flex flex-row md:flex-col gap-3 shrink-0">${p.links.map(l => `<a href="${l.href}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-sm font-medium text-${cat.color} hover:underline whitespace-nowrap">${l.label} →</a>`).join('')}</div>` : ''}
+            <div class="p-6">
+              <h3 class="text-lg font-semibold mb-2 text-ink">${p.title}</h3>
+              <p class="text-sm text-[#b3b3b3] leading-relaxed max-w-3xl">${p.description}</p>
+              <div class="mt-4 flex flex-wrap gap-2 font-mono text-[11px] text-muted">
+                ${p.tags.map(t => `<span class="px-2 py-1 rounded bg-bg border border-border">${t}</span>`).join('')}
+              </div>
+              ${p.links.length ? `<div class="mt-4 flex flex-wrap gap-4">${p.links.map(l => `<a href="${l.href}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-sm font-mono text-${cat.color} hover:underline">${l.label} →</a>`).join('')}</div>` : ''}
+            </div>
           `;
         } else {
-          article.className = `card-hover rounded-xl border-l-4 border-t border-r border-b border-border p-6 flex flex-col bg-surface`;
-          article.style.borderLeftColor = getComputedColor(cat.color);
+          article.className = `card-hover rounded-md border border-border bg-surface2 overflow-hidden flex flex-col`;
           article.innerHTML = `
-            <div class="flex items-center justify-between mb-4 gap-2">
-              <span class="inline-flex items-center rounded-full bg-${cat.color}/10 text-${cat.color} text-xs font-mono px-2.5 py-1">${cat.label}</span>
+            <div class="flex items-center justify-between gap-2 px-4 py-2 border-b border-border" style="background:rgba(255,255,255,0.02)">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-sm" style="background:${getComputedColor(cat.color)}"></span>
+                <span class="font-mono text-xs text-${cat.color}">${cat.label}</span>
+              </div>
               <span class="text-xs font-mono text-muted text-right">${p.meta}</span>
             </div>
-            <h3 class="text-lg font-semibold mb-2">${p.title}</h3>
-            <p class="text-sm text-muted leading-relaxed flex-1">${p.description}</p>
-            <div class="mt-5 flex flex-wrap gap-2 font-mono text-[11px] text-muted">
-              ${p.tags.map(t => `<span class="px-2 py-1 rounded bg-surface2 border border-border">${t}</span>`).join('')}
+            <div class="p-5 flex flex-col flex-1">
+              <h3 class="text-base font-semibold mb-2 text-ink">${p.title}</h3>
+              <p class="text-sm text-[#b3b3b3] leading-relaxed flex-1">${p.description}</p>
+              <div class="mt-4 flex flex-wrap gap-2 font-mono text-[11px] text-muted">
+                ${p.tags.map(t => `<span class="px-2 py-1 rounded bg-bg border border-border">${t}</span>`).join('')}
+              </div>
+              ${p.links.length ? `<div class="mt-4 flex flex-col gap-1.5">${p.links.map(l => `<a href="${l.href}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-sm font-mono text-${cat.color} hover:underline">${l.label} →</a>`).join('')}</div>` : ''}
             </div>
-            ${p.links.length ? `<div class="mt-5 flex flex-col gap-1.5">${p.links.map(l => `<a href="${l.href}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-sm text-${cat.color} hover:underline">${l.label} →</a>`).join('')}</div>` : ''}
           `;
         }
         grid.appendChild(article);
       });
   }
 
-  // resolves a tailwind colour token (e.g. "adenine") to its hex value, for inline-style border accents
-  const COLOR_HEX = { adenine: '#4fd1c5', thymine: '#f6ad55', guanine: '#f687b3', cytosine: '#63b3ed', collab: '#b794f4' };
-  function getComputedColor(token) { return COLOR_HEX[token] || '#4fd1c5'; }
+  // resolves a tailwind colour token (e.g. "adenine") to its hex value, for inline-style accents
+  const COLOR_HEX = { adenine: '#4ec9b0', thymine: '#ce9178', guanine: '#c586c0', cytosine: '#569cd6', collab: '#dcdcaa' };
+  function getComputedColor(token) { return COLOR_HEX[token] || '#4ec9b0'; }
 
   renderProjects('all');
 
@@ -392,21 +410,21 @@
     const btn = e.target.closest('.filter-btn');
     if (!btn) return;
     document.querySelectorAll('.filter-btn').forEach(b => {
-      b.className = 'filter-btn px-3 py-1.5 rounded-full border border-border text-muted hover:text-ink';
+      b.className = 'filter-btn px-3 py-1.5 rounded border border-border text-muted hover:text-ink';
     });
     const cat = CATEGORIES[btn.dataset.filter];
-    const color = cat ? cat.color : 'adenine';
-    btn.className = `filter-btn px-3 py-1.5 rounded-full border border-${color}/50 bg-${color}/10 text-${color}`;
+    const color = cat ? cat.color : 'cytosine';
+    btn.className = `filter-btn px-3 py-1.5 rounded border border-${color}/50 bg-${color}/10 text-${color}`;
     renderProjects(btn.dataset.filter);
   });
 </script>
 
 <!-- ============ PUBLICATIONS (scaffold) ============ -->
-<section id="publications" class="max-w-6xl mx-auto px-6 py-24 border-b border-border">
-  <p class="font-mono text-xs uppercase tracking-[0.25em] text-guanine mb-2">02 — Publications</p>
-  <h2 class="text-3xl font-bold tracking-tight mb-10">Peer-reviewed &amp; preprint work</h2>
+<section id="publications" class="max-w-5xl mx-auto px-6 md:px-10 py-20 border-b border-border">
+  <p class="font-mono text-xs text-comment mb-2">// publications</p>
+  <h2 class="text-2xl font-bold tracking-tight mb-10 text-ink">Peer-reviewed &amp; preprint work</h2>
 
-  <ul class="space-y-5" id="pubList"></ul>
+  <ul class="space-y-4" id="pubList"></ul>
 
   <script>
     const PUBLICATIONS = [
@@ -442,19 +460,19 @@
       },
     ];
     document.getElementById('pubList').innerHTML = PUBLICATIONS.map(p => `
-      <li class="border border-border rounded-xl bg-surface p-5 flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-6">
-        <span class="font-mono text-xs text-muted w-40 shrink-0 pt-0.5">${p.tag}<br><span class="text-muted/60">${p.role}</span></span>
-        <span class="flex-1 text-sm leading-relaxed">${p.text}</span>
-        ${p.link ? `<a href="${p.link}" target="_blank" rel="noopener" class="text-sm text-adenine hover:underline shrink-0">Read paper →</a>` : `<span class="text-xs text-muted/50 shrink-0 font-mono pt-0.5">DOI pending</span>`}
+      <li class="border border-border rounded-md bg-surface2 p-4 flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-6">
+        <span class="font-mono text-xs text-muted w-40 shrink-0 pt-0.5">[${p.tag}]<br><span class="text-muted/70">${p.role}</span></span>
+        <span class="flex-1 text-sm leading-relaxed text-[#c9c9c9]">${p.text}</span>
+        ${p.link ? `<a href="${p.link}" target="_blank" rel="noopener" class="text-sm font-mono text-cytosine hover:underline shrink-0">read →</a>` : `<span class="text-xs text-muted/60 shrink-0 font-mono pt-0.5">DOI pending</span>`}
       </li>
     `).join('');
   </script>
 </section>
 
 <!-- ============ SCRIPTS & TOOLS ============ -->
-<section id="tools" class="max-w-6xl mx-auto px-6 py-24 border-b border-border">
-  <p class="font-mono text-xs uppercase tracking-[0.25em] text-thymine mb-2">03 — Scripts &amp; Tools</p>
-  <h2 class="text-3xl font-bold tracking-tight mb-4">Reusable pipeline building blocks</h2>
+<section id="tools" class="max-w-5xl mx-auto px-6 md:px-10 py-20 border-b border-border">
+  <p class="font-mono text-xs text-comment mb-2">// scripts &amp; tools</p>
+  <h2 class="text-2xl font-bold tracking-tight mb-4 text-ink">Reusable pipeline building blocks</h2>
   <p class="text-muted max-w-2xl mb-12">Individual scripts pulled straight from the StressGranules and CHARM repositories. Each link opens the file on GitHub.</p>
 
   <div id="scriptGroups" class="space-y-10"></div>
@@ -499,11 +517,11 @@
 
   document.getElementById('scriptGroups').innerHTML = SCRIPT_GROUPS.map(group => `
     <div>
-      <h3 class="font-mono text-xs uppercase tracking-[0.15em] text-${group.color} mb-3">${group.title}</h3>
+      <h3 class="font-mono text-xs text-${group.color} mb-3">// ${group.title}</h3>
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
         ${group.items.map(item => `
           <a href="${group.base}${item.path}" target="_blank" rel="noopener"
-             class="card-hover block rounded-lg border border-border bg-surface px-4 py-3 font-mono text-sm text-ink hover:border-${group.color}/50">
+             class="card-hover block rounded-md border border-border bg-surface2 px-4 py-3 font-mono text-sm text-ink hover:border-${group.color}/50">
             ${item.name}
             <span class="block mt-1 text-xs text-muted font-sans">${item.note}</span>
           </a>
@@ -514,23 +532,23 @@
 </script>
 
 <!-- ============ RESUME (full web CV) ============ -->
-<section id="resume" class="max-w-6xl mx-auto px-6 py-24 border-b border-border">
+<section id="resume" class="max-w-5xl mx-auto px-6 md:px-10 py-20 border-b border-border">
   <div class="flex items-start justify-between flex-wrap gap-6 mb-10">
     <div>
-      <p class="font-mono text-xs uppercase tracking-[0.25em] text-cytosine mb-2">04 — Resume</p>
-      <h2 class="text-3xl font-bold tracking-tight">Web CV</h2>
+      <p class="font-mono text-xs text-comment mb-2">// resume</p>
+      <h2 class="text-2xl font-bold tracking-tight text-ink">Web CV</h2>
     </div>
     <a href="Alexandre_Kaizeler_CV.pdf"
-       class="shrink-0 inline-flex items-center gap-2 rounded-md bg-adenine text-bg font-semibold text-sm px-5 py-2.5 hover:bg-adenine/90 transition-colors">
+       class="shrink-0 inline-flex items-center gap-2 rounded border border-cytosine/40 bg-cytosine/10 text-cytosine font-mono text-sm px-4 py-2 hover:bg-cytosine/20 transition-colors">
       Download Full PDF
     </a>
   </div>
 
-  <div class="rounded-xl border border-border bg-surface p-8 md:p-10 space-y-10">
+  <div class="rounded-md border border-border bg-surface2 p-6 md:p-8 space-y-10">
 
     <!-- summary -->
     <div>
-      <p class="text-muted leading-relaxed">
+      <p class="text-[#c9c9c9] leading-relaxed">
         Computational biologist with 4+ years of experience analysing large-scale, high-dimensional
         biological datasets and translating complex findings into clear, decision-ready scientific
         narratives. As first and corresponding author, led a reanalysis of public transcriptomic data,
@@ -542,21 +560,21 @@
 
     <!-- skills -->
     <div>
-      <h3 class="font-mono text-xs uppercase tracking-[0.2em] text-adenine mb-4">Technical Skills</h3>
+      <h3 class="font-mono text-xs text-comment mb-4">// technical skills</h3>
       <div class="grid sm:grid-cols-2 gap-4 text-sm">
-        <div class="rounded-lg border border-border bg-surface2 p-4">
+        <div class="rounded border border-border bg-bg p-4">
           <p class="font-semibold text-ink mb-1">Programming</p>
           <p class="text-muted">R (expert), Python (advanced), JavaScript (familiar) </p>
         </div>
-        <div class="rounded-lg border border-border bg-surface2 p-4">
+        <div class="rounded border border-border bg-bg p-4">
           <p class="font-semibold text-ink mb-1">ML / Statistics</p>
           <p class="text-muted">Statistical modeling, hypothesis testing, PCA, classification (Elastic Net, Sparse Centroids)</p>
         </div>
-        <div class="rounded-lg border border-border bg-surface2 p-4">
+        <div class="rounded border border-border bg-bg p-4">
           <p class="font-semibold text-ink mb-1">Genomics &amp; Sequencing</p>
           <p class="text-muted">DGEA, differential splicing, GSEA, variant calling, mutational analysis, NGS QC (FastQC/MultiQC), DSL (Nextflow)</p>
         </div>
-        <div class="rounded-lg border border-border bg-surface2 p-4">
+        <div class="rounded border border-border bg-bg p-4">
           <p class="font-semibold text-ink mb-1">Data Visualization</p>
           <p class="text-muted">R Shiny, plotly, ggplot2, interactive dashboards for non-technical end users</p>
         </div>
@@ -565,12 +583,12 @@
 
     <!-- experience -->
     <div>
-      <h3 class="font-mono text-xs uppercase tracking-[0.2em] text-guanine mb-4">Professional Experience</h3>
+      <h3 class="font-mono text-xs text-comment mb-4">// professional experience</h3>
 
       <div class="border-l-2 border-border pl-5 mb-6">
         <p class="font-semibold text-ink">Computational Biologist / PhD Researcher</p>
         <p class="text-sm text-muted mb-3">Gulbenkian Institute for Molecular Medicine (GIMM) / Instituto de Medicina Molecular, University of Lisbon — Feb 2022 – Present</p>
-        <ul class="text-sm text-muted space-y-2 list-disc list-outside ml-4">
+        <ul class="text-sm text-[#c9c9c9] space-y-2 list-disc list-outside ml-4">
           <li>Led a large-scale reanalysis of 16 independent public stress-granule transcriptomic datasets, correcting a previously unrecognised length-based technical bias and identifying mitochondrial RNA enrichment as a reproducible signal with a proposed role in immune signalling.</li>
           <li>Co-led development of <b class="text-ink">voyAGEr</b>, a public web app processing RNA-seq data from 900+ individuals across 49 tissues (GTEx). Built statistical backend and interactive front-end.</li>
           <li>Designed and built <b class="text-ink">CHARM</b>, an R Shiny analytics platform for similarity search, correlation analysis, and GSEA-based pathway enrichment of RNA-binding proteins, engineered for performance at scale.</li>
@@ -581,7 +599,7 @@
       <div class="border-l-2 border-border pl-5">
         <p class="font-semibold text-ink">Research Intern, MSc Thesis</p>
         <p class="text-sm text-muted mb-3">Champalimaud Foundation — 2020 – 2021</p>
-        <ul class="text-sm text-muted space-y-2 list-disc list-outside ml-4">
+        <ul class="text-sm text-[#c9c9c9] space-y-2 list-disc list-outside ml-4">
           <li>Investigated cell competition using a colorectal cancer co-culture model; ran RNA-seq differential expression analysis comparing winner and loser cells.</li>
           <li>Validated candidate genes by RT-qPCR and functional knockdowns, identifying three genes required for loser-cell elimination, and linked cell competition to cell migration and chemotherapy response for the first time in this cancer type.</li>
         </ul>
@@ -590,8 +608,8 @@
 
     <!-- education -->
     <div>
-      <h3 class="font-mono text-xs uppercase tracking-[0.2em] text-thymine mb-4">Education</h3>
-      <ul class="text-sm text-muted space-y-1.5">
+      <h3 class="font-mono text-xs text-comment mb-4">// education</h3>
+      <ul class="text-sm text-[#c9c9c9] space-y-1.5">
         <li><b class="text-ink">PhD, Biomedical Sciences</b> — University of Lisbon (Feb 2022 – Present)</li>
         <li><b class="text-ink">MSc, Oncobiology</b> — University of Lisbon (2018 – 2021)</li>
         <li><b class="text-ink">BSc, Biomedical Sciences</b> — University of Algarve (2015 – 2018)</li>
@@ -602,11 +620,11 @@
 </section>
 
 <!-- ============ BEYOND THE BENCH (personal) ============ -->
-<section id="personal" class="max-w-6xl mx-auto px-6 py-24 border-b border-border">
-  <p class="font-mono text-xs uppercase tracking-[0.25em] text-guanine mb-2">05 — Beyond the Desk</p>
-  <h2 class="text-3xl font-bold tracking-tight mb-10">When I'm not staring at volcano plots</h2>
+<section id="personal" class="max-w-5xl mx-auto px-6 md:px-10 py-20 border-b border-border">
+  <p class="font-mono text-xs text-comment mb-2">// beyond the desk</p>
+  <h2 class="text-2xl font-bold tracking-tight mb-10 text-ink">When I'm not staring at volcano plots</h2>
 
-  <div class="rounded-xl border border-border bg-surface p-8 md:p-10 grid md:grid-cols-[1fr_auto] gap-10 items-center">
+  <div class="rounded-md border border-border bg-surface2 p-6 md:p-8 grid md:grid-cols-[1fr_auto] gap-10 items-center">
     <div class="space-y-6">
       <div class="flex gap-4 items-start">
         <span class="text-2xl leading-none">🎲</span>
@@ -634,56 +652,59 @@
     <div class="flex justify-center">
       <svg id="catSvg" viewBox="0 0 220 230" class="w-44 h-44 sm:w-56 sm:h-56" aria-hidden="true">
         <!-- tail, hooked like a "?" instead of a straight arm-like arc -->
-        <path class="cat-tail" d="M180,206 C210,197 214,155 196,127 C186,111 166,109 164,125" fill="none" stroke="#4fd1c5" stroke-width="9" stroke-linecap="round"/>
+        <path class="cat-tail" d="M180,206 C210,197 214,155 196,127 C186,111 166,109 164,125" fill="none" stroke="#4ec9b0" stroke-width="9" stroke-linecap="round"/>
         <!-- loaf body: a rounded dome (no flat "shoulder" line, which is what made it read
              as a bust) shifted right of the head so it peeks out asymmetrically, cat-like -->
-        <path d="M55,208 C50,148 92,138 118,138 C172,138 188,148 183,208 C183,222 155,224 118,224 C82,224 55,222 55,208 Z" fill="#161d28" stroke="#63b3ed" stroke-width="3"/>
+        <path d="M55,208 C50,148 92,138 118,138 C172,138 188,148 183,208 C183,222 155,224 118,224 C82,224 55,222 55,208 Z" fill="#252526" stroke="#569cd6" stroke-width="3"/>
         <!-- ears -->
-        <polygon points="47,85 64,35 87,88" fill="#161d28" stroke="#63b3ed" stroke-width="3" stroke-linejoin="round"/>
-        <polygon points="97,88 120,35 137,85" fill="#161d28" stroke="#63b3ed" stroke-width="3" stroke-linejoin="round"/>
-        <polygon points="54,78 64,52 76,80" fill="#f687b3" opacity="0.55"/>
-        <polygon points="108,80 120,52 130,78" fill="#f687b3" opacity="0.55"/>
+        <polygon points="47,85 64,35 87,88" fill="#252526" stroke="#569cd6" stroke-width="3" stroke-linejoin="round"/>
+        <polygon points="97,88 120,35 137,85" fill="#252526" stroke="#569cd6" stroke-width="3" stroke-linejoin="round"/>
+        <polygon points="54,78 64,52 76,80" fill="#c586c0" opacity="0.55"/>
+        <polygon points="108,80 120,52 130,78" fill="#c586c0" opacity="0.55"/>
         <!-- head, sitting left of the body's centre -->
-        <circle cx="92" cy="120" r="56" fill="#161d28" stroke="#63b3ed" stroke-width="3"/>
+        <circle cx="92" cy="120" r="56" fill="#252526" stroke="#569cd6" stroke-width="3"/>
         <!-- eyes (blink via CSS animation, synced together) -->
         <g class="cat-eye">
-          <circle cx="72" cy="115" r="9" fill="#e6edf3"/>
-          <circle cx="72" cy="115" r="4.5" fill="#0a0e14"/>
+          <circle cx="72" cy="115" r="9" fill="#d4d4d4"/>
+          <circle cx="72" cy="115" r="4.5" fill="#1e1e1e"/>
         </g>
         <g class="cat-eye">
-          <circle cx="112" cy="115" r="9" fill="#e6edf3"/>
-          <circle cx="112" cy="115" r="4.5" fill="#0a0e14"/>
+          <circle cx="112" cy="115" r="9" fill="#d4d4d4"/>
+          <circle cx="112" cy="115" r="4.5" fill="#1e1e1e"/>
         </g>
         <!-- nose -->
-        <polygon points="92,132 86,140 98,140" fill="#f687b3"/>
+        <polygon points="92,132 86,140 98,140" fill="#c586c0"/>
         <!-- mouth -->
-        <path d="M92,140 Q80,152 66,142" fill="none" stroke="#8b98a9" stroke-width="2" stroke-linecap="round"/>
-        <path d="M92,140 Q104,152 118,142" fill="none" stroke="#8b98a9" stroke-width="2" stroke-linecap="round"/>
+        <path d="M92,140 Q80,152 66,142" fill="none" stroke="#9d9d9d" stroke-width="2" stroke-linecap="round"/>
+        <path d="M92,140 Q104,152 118,142" fill="none" stroke="#9d9d9d" stroke-width="2" stroke-linecap="round"/>
         <!-- whiskers -->
-        <line x1="42" y1="128" x2="10" y2="121" stroke="#8b98a9" stroke-width="1.5"/>
-        <line x1="42" y1="136" x2="10" y2="138" stroke="#8b98a9" stroke-width="1.5"/>
-        <line x1="142" y1="128" x2="174" y2="121" stroke="#8b98a9" stroke-width="1.5"/>
-        <line x1="142" y1="136" x2="174" y2="138" stroke="#8b98a9" stroke-width="1.5"/>
+        <line x1="42" y1="128" x2="10" y2="121" stroke="#9d9d9d" stroke-width="1.5"/>
+        <line x1="42" y1="136" x2="10" y2="138" stroke="#9d9d9d" stroke-width="1.5"/>
+        <line x1="142" y1="128" x2="174" y2="121" stroke="#9d9d9d" stroke-width="1.5"/>
+        <line x1="142" y1="136" x2="174" y2="138" stroke="#9d9d9d" stroke-width="1.5"/>
       </svg>
     </div>
   </div>
 </section>
 
 <!-- ============ CONTACT / FOOTER ============ -->
-<footer id="contact" class="max-w-6xl mx-auto px-6 py-20">
-  <div class="rounded-2xl border border-border bg-surface p-10 text-center">
-    <h2 class="text-2xl font-bold mb-3">I pronounce it "data".</h2>
+<footer id="contact" class="max-w-5xl mx-auto px-6 md:px-10 py-20">
+  <div class="rounded-md border border-border bg-surface2 p-10 text-center">
+    <p class="font-mono text-xs text-comment mb-3">// contact</p>
+    <h2 class="text-xl font-bold mb-3 text-ink">I pronounce it data.</h2>
     <p class="text-muted mb-6">Open to roles in biotech &amp; pharma.</p>
     <div class="flex flex-wrap justify-center gap-4 font-mono text-sm">
-      <a href="mailto:alexandre.kaizeler.afonso@gmail.com" class="text-adenine hover:underline">alexandre.kaizeler.afonso@gmail.com</a>
+      <a href="mailto:alexandre.kaizeler.afonso@gmail.com" class="text-cytosine hover:underline">alexandre.kaizeler.afonso@gmail.com</a>
       <span class="text-border">·</span>
       <a href="https://linkedin.com/in/alexandre-kaizeler/" target="_blank" rel="noopener" class="text-muted hover:text-ink">LinkedIn</a>
       <span class="text-border">·</span>
       <a href="https://github.com/A-Kaizeler-A" target="_blank" rel="noopener" class="text-muted hover:text-ink">GitHub</a>
     </div>
   </div>
-  <p class="text-center text-xs text-muted/60 mt-8 font-mono">© <span id="year"></span> Alexandre Kaizeler — built with Tailwind &amp; vanilla JS, with help from Claude Sonnet 5.</p>
+  <p class="text-center text-xs text-muted/70 mt-8 font-mono">© <span id="year"></span> Alexandre Kaizeler — built with Tailwind &amp; vanilla JS, with help from Claude Sonnet 5.</p>
 </footer>
+
+</div><!-- /#mainCol -->
 
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
@@ -693,53 +714,110 @@
   menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
   mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileMenu.classList.add('hidden')));
 
-  // Build the decorative RNA strand — single backbone (RNA, not DNA), continuously
-  // rotating so it visibly moves rather than sitting static in the hero.
-  (function drawRNA(){
-    const g = document.getElementById('rnaGroup');
+  // ---- Scroll-spy: highlight the active file in the sidebar + update the status bar ----
+  const FILES = {
+    top: 'summary.md', projects: 'projects.R', publications: 'publications.bib',
+    tools: 'scripts/', resume: 'cv.pdf', personal: 'beyond_the_desk.js', contact: 'contact.txt'
+  };
+  const navItems = document.querySelectorAll('#sidebar .navitem');
+  const statusFile = document.getElementById('statusFile');
+  const sections = Object.keys(FILES).map(id => document.getElementById(id)).filter(Boolean);
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navItems.forEach(a => a.classList.toggle('active', a.dataset.section === id));
+        if (FILES[id]) statusFile.textContent = FILES[id];
+      }
+    });
+  }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
+
+  sections.forEach(s => observer.observe(s));
+
+  navItems.forEach(a => a.addEventListener('click', () => {
+    const target = document.getElementById(a.dataset.section);
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  }));
+
+  // Build the decorative DNA double helix — two backbones, 180° out of phase,
+  // connected by base-pair rungs, continuously rotating via requestAnimationFrame.
+  (function drawDNA(){
+    const g = document.getElementById('dnaGroup');
     if (!g) return;
     const svgNS = 'http://www.w3.org/2000/svg';
     const W = 480, H = 260, midY = H / 2;
-    const N = 26;           // bases along the strand
-    const amplitude = 78;   // vertical swing
-    const twists = 3;       // full corkscrew turns across the width
+    const N = 24;            // base pairs along the strand
+    const amplitude = 62;    // vertical swing of each backbone
+    const twists = 3;        // full corkscrew turns across the width
 
-    // real RNA base colours — Uracil, not Thymine
-    const BASE_COLORS = { A: '#4fd1c5', U: '#f6ad55', G: '#f687b3', C: '#63b3ed' };
-    const seq = ['A', 'U', 'G', 'C'];
+    // base-pair colours (A-T, G-C), matched to the IDE syntax-highlight palette
+    const PAIR_COLORS = [
+      { a: '#4ec9b0', b: '#ce9178' }, // A – T
+      { a: '#569cd6', b: '#c586c0' }, // G – C
+    ];
 
-    const backbone = document.createElementNS(svgNS, 'path');
-    backbone.setAttribute('fill', 'none');
-    backbone.setAttribute('stroke', 'rgba(139,152,169,0.4)');
-    backbone.setAttribute('stroke-width', '2');
-    backbone.setAttribute('stroke-linecap', 'round');
-    g.appendChild(backbone);
+    const strand1 = document.createElementNS(svgNS, 'path');
+    const strand2 = document.createElementNS(svgNS, 'path');
+    [strand1, strand2].forEach(s => {
+      s.setAttribute('fill', 'none');
+      s.setAttribute('stroke', 'rgba(157,157,157,0.45)');
+      s.setAttribute('stroke-width', '1.5');
+      s.setAttribute('stroke-linecap', 'round');
+      g.appendChild(s);
+    });
 
     const nodes = [];
     for (let i = 0; i < N; i++) {
       const x = (W / (N - 1)) * i;
       const basePhase = (i / N) * Math.PI * 2 * twists;
-      const base = seq[i % seq.length];
-      const circle = document.createElementNS(svgNS, 'circle');
-      circle.setAttribute('fill', BASE_COLORS[base]);
-      g.appendChild(circle);
-      nodes.push({ x, basePhase, circle });
+      const pair = PAIR_COLORS[i % PAIR_COLORS.length];
+
+      const rung = document.createElementNS(svgNS, 'line');
+      rung.setAttribute('stroke', 'rgba(157,157,157,0.3)');
+      rung.setAttribute('stroke-width', '1.5');
+      g.appendChild(rung);
+
+      const dotA = document.createElementNS(svgNS, 'circle');
+      dotA.setAttribute('fill', pair.a);
+      g.appendChild(dotA);
+
+      const dotB = document.createElementNS(svgNS, 'circle');
+      dotB.setAttribute('fill', pair.b);
+      g.appendChild(dotB);
+
+      nodes.push({ x, basePhase, rung, dotA, dotB });
     }
 
     function frame(t) {
-      let d = '';
+      let d1 = '', d2 = '';
       nodes.forEach((n, i) => {
-        const y = midY + Math.sin(n.basePhase + t) * amplitude;
-        const depth = Math.cos(n.basePhase + t); // -1..1 — simulates rotation toward/away from viewer
-        const scale = 0.55 + 0.45 * (depth + 1) / 2;
-        const opacity = 0.4 + 0.6 * (depth + 1) / 2;
-        n.circle.setAttribute('cx', n.x);
-        n.circle.setAttribute('cy', y);
-        n.circle.setAttribute('r', (5 * scale).toFixed(2));
-        n.circle.setAttribute('opacity', opacity.toFixed(2));
-        d += (i === 0 ? 'M' : 'L') + n.x.toFixed(1) + ',' + y.toFixed(1) + ' ';
+        const yA = midY + Math.sin(n.basePhase + t) * amplitude;
+        const yB = midY + Math.sin(n.basePhase + t + Math.PI) * amplitude;
+        const depthA = Math.cos(n.basePhase + t);
+        const depthB = Math.cos(n.basePhase + t + Math.PI);
+        const scaleA = 0.55 + 0.45 * (depthA + 1) / 2;
+        const scaleB = 0.55 + 0.45 * (depthB + 1) / 2;
+        const opA = 0.35 + 0.65 * (depthA + 1) / 2;
+        const opB = 0.35 + 0.65 * (depthB + 1) / 2;
+
+        n.dotA.setAttribute('cx', n.x); n.dotA.setAttribute('cy', yA);
+        n.dotA.setAttribute('r', (4.5 * scaleA).toFixed(2));
+        n.dotA.setAttribute('opacity', opA.toFixed(2));
+
+        n.dotB.setAttribute('cx', n.x); n.dotB.setAttribute('cy', yB);
+        n.dotB.setAttribute('r', (4.5 * scaleB).toFixed(2));
+        n.dotB.setAttribute('opacity', opB.toFixed(2));
+
+        n.rung.setAttribute('x1', n.x); n.rung.setAttribute('y1', yA);
+        n.rung.setAttribute('x2', n.x); n.rung.setAttribute('y2', yB);
+        n.rung.setAttribute('opacity', Math.min(opA, opB).toFixed(2));
+
+        d1 += (i === 0 ? 'M' : 'L') + n.x.toFixed(1) + ',' + yA.toFixed(1) + ' ';
+        d2 += (i === 0 ? 'M' : 'L') + n.x.toFixed(1) + ',' + yB.toFixed(1) + ' ';
       });
-      backbone.setAttribute('d', d);
+      strand1.setAttribute('d', d1);
+      strand2.setAttribute('d', d2);
     }
 
     frame(0);
